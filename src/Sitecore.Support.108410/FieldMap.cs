@@ -21,16 +21,16 @@
             var source = (from arg in (Dictionary<string, AbstractSearchFieldConfiguration>)this.fieldTypeNameMapInfo.GetValue(this)
                           select new
                           {
-                              FieldType = FieldTypeManager.GetFieldType(arg.Key),
+                              Type = FieldTypeManager.GetFieldType(arg.Key)?.Type ?? Type.GetType(arg.Key, false, true),
                               Value = arg.Value
                           } into arg
-                          where arg.FieldType != null
+                          where arg.Type != null
                           select arg).ToList();
 
             Type lookupType = returnType;
             while (lookupType != null && lookupType != typeof(object))
             {
-                var result = source.FirstOrDefault(arg => arg.FieldType.Type == lookupType);
+                var result = source.FirstOrDefault(arg => arg.Type == lookupType);
 
                 if (result != null)
                     return result.Value;
@@ -40,7 +40,7 @@
            
 
             {
-                var result = source.FirstOrDefault(arg => arg.FieldType.Type.IsAssignableFrom(lookupType));
+                var result = source.FirstOrDefault(arg => arg.Type.IsAssignableFrom(lookupType));
 
                 if (result != null)
                     return result.Value;
